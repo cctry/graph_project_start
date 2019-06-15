@@ -1,5 +1,6 @@
 #include <iostream>
 #include "graph.h"
+#include <memory>
 
 int main(int args, char **argv)
 {
@@ -12,10 +13,14 @@ int main(int args, char **argv)
 	
 	//template <file_vertex_t, file_index_t, file_weight_t
 	//new_vertex_t, new_index_t, new_weight_t>
-	graph<long, long, int, long, long, char>
-	*ginst = new graph
-	<long, long, int, long, long, char>
-	(beg_file,csr_file,weight_file);
+
+    using graph_t = graph<long, long, int, long, long, char>;
+    auto g = std::make_unique<graph_t>(beg_file,csr_file,weight_file);
+    auto res = g->get_adjacency(2);
+    for (int i=0; i<res.second; i++) {
+        std::cout<<res.first[i]<<" ";
+    }
+    std::cout<<std::endl;
     
     //**
     //You can implement your single threaded graph algorithm here.
