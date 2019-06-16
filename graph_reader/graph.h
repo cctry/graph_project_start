@@ -28,8 +28,11 @@ class graph
 		new_index_t *beg_pos;
 		new_vert_t *csr;
 		new_weight_t *weight;
-		new_index_t vert_count;
-		new_index_t edge_count;
+		new_vert_t vert_count;
+		new_vert_t edge_count;
+		using vert_t = new_vert_t; // type of num of vert
+		using index_t = new_index_t; // type of num of element in csr
+		using weight_t = new_weight_t; // type of weight
 
 	public:
 		graph(){};
@@ -37,11 +40,11 @@ class graph
 		graph(const char *beg_file, 
 				const char *csr_file,
 				const char *weight_file);
-		arr_view_t<new_vert_t, new_index_t>
-		get_adjacency(new_index_t vert) {
+		arr_view_t<vert_t, index_t>
+		get_adjacency(index_t vert) {
 			auto start = beg_pos[vert];
 			auto end = beg_pos[vert + 1];
-			arr_view_t<new_vert_t, new_index_t> res = std::make_pair(csr+start, end - start);
+			arr_view_t<vert_t, index_t> res = std::make_pair(csr+start, end - start);
 			return res;
 		};
 };
