@@ -93,9 +93,14 @@ int main(int args, char **argv) {
     long start = 970809;
     long end = 1789999;
     auto g = std::make_shared<graph_t>(beg_file, csr_file, weight_file);
-    std::cout << start << " -> " << end << ": ";
+    std::cout<<"single thread:"<<std::endl;
+    std::cout << start << " -> " << end << ":\n ";
     auto t = wtime();
     std::cout << BFS(g, start, end) << std::endl;
+    std::cout << "Time: " << wtime() - t << std::endl;
+    std::cout<<"multi thread:"<<std::endl;
+    t = wtime();
+    std::cout << mtBFS(g, start, end) << std::endl;
     std::cout << "Time: " << wtime() - t << std::endl;
     return 0;
 }
