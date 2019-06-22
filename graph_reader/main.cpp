@@ -9,7 +9,7 @@ using graph_t = graph<long, long, int, long, long, char>;
 // single thread BFS
 template <typename T>
 typename T::vert_t BFS(std::shared_ptr<T> g, typename T::vert_t start,
-         typename T::vert_t end) {
+                       typename T::vert_t end) {
     if (start == end) return true;
     typename T::vert_t count = 1;
     std::vector<bool> all(g->vert_count, true);  // true: unvisited
@@ -43,9 +43,9 @@ typename T::vert_t BFS(std::shared_ptr<T> g, typename T::vert_t start,
 long mtBFS(std::shared_ptr<graph_t> g, long start, long end) {
     if (start == end) return 0;
     bool flag = false;
-    long count = 1;
+    graph_t::vert_t count = 1;
     std::vector<bool> all(g->vert_count, true);  // true: unvisited
-    std::queue<long> grey_current;
+    std::queue<graph_t::vert_t> grey_current;
     decltype(grey_current) grey_next;
     grey_current.push(start);
     all[start] = false;
@@ -55,22 +55,24 @@ long mtBFS(std::shared_ptr<graph_t> g, long start, long end) {
             grey_current.pop();
             all[vert] = false;
             auto neigh = g->get_adjacency(vert);
-            long *adj = neigh.first;
-            long num = neigh.second;
-#pragma omp parallel for
-            for (long i = 0; i < num; i++) {
-                long v = adj[i];
+            graph_t::vert_t *adj = neigh.first;
+            graph_t::vert_t num = neigh.second;
+            //printf("%ld:\n", vert);
+#pragma omp parallel for firstprivate(end)
+            for (graph_t::vert_t i = 0; i < num; i++) {
+                auto v = adj[i];
                 if (all[v]) {
-                    if (v == end)
+                    if (v == end) {
                         flag = true;
-                    else {
-                        grey_next.push(v);
+                    } else {
                         all[v] = false;
                     }
                 }
             }
+            if (flag) return count;
+            for (graph_t::vert_t i = 0; i < num; i++)
+                grey_next.push(adj[i]);
         }
-        if (flag) return count;
         std::swap(grey_next, grey_current);
         count++;
     }
@@ -93,12 +95,12 @@ int main(int args, char **argv) {
     long start = 970809;
     long end = 1789999;
     auto g = std::make_shared<graph_t>(beg_file, csr_file, weight_file);
-    std::cout<<"single thread:"<<std::endl;
-    std::cout << start << " -> " << end << ":\n ";
+    std::cout << "single thread:" << std::endl;
+    std::cout << start << " -> " << end << ":\n";
     auto t = wtime();
     std::cout << BFS(g, start, end) << std::endl;
     std::cout << "Time: " << wtime() - t << std::endl;
-    std::cout<<"multi thread:"<<std::endl;
+    std::cout << "multi thread:" << std::endl;
     t = wtime();
     std::cout << mtBFS(g, start, end) << std::endl;
     std::cout << "Time: " << wtime() - t << std::endl;
